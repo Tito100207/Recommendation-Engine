@@ -1,0 +1,56 @@
+SELECT 
+FS.ProductKey
+,FS.SalesOrderNumber
+,FS.CustomerKey
+,ST.SalesTerritoryRegion
+,PP.EnglishProductName
+,PP.Color
+,PP.DaysToManufacture
+,PP.DealerPrice
+,FS.UnitPrice
+,FS.OrderQuantity
+,FS.ProductStandardCost
+,FS.UnitPrice*FS.OrderQuantity AS Revenue
+,(FS.UnitPrice)-(FS.ProductStandardCost) AS Profit
+,Volumeoftransaction 
+,PP.ListPrice
+,PP.StartDate
+,PP.EndDate
+,PS.EnglishProductSubcategoryName
+,PC.EnglishProductCategoryName
+,CC.[CustomerKey]
+,CC.BirthDate
+,CC.CommuteDistance
+,CC.FirstName
+,CC.MiddleName
+,CC.LastName
+,CC.Gender
+,CC.MaritalStatus
+,CC.TotalChildren
+,CC.YearlyIncome
+,FS.OrderDate
+,YEAR(FS.OrderDate) "Order Year"
+,DAY(FS.OrderDate) "Order Day"
+,DATENAME(MM,FS.OrderDate) "Order Month"
+,DATENAME(WW,FS.OrderDate) "Order Week"
+,DATENAME(WEEKDAY,FS.OrderDate) "Order Day"
+,DATENAME(QQ,FS.OrderDate) "Order Quarter"
+FROM[dbo].[FactInternetSales] AS FS
+LEFT JOIN[dbo].[DimSalesTerritory] AS ST
+ON ST.SalesTerritoryKey=FS.SalesTerritoryKey
+LEFT JOIN[dbo].[DimProduct] AS PP
+ON PP.ProductKey=FS.ProductKey
+LEFT JOIN [dbo].[DimProductSubcategory] AS PS
+ON PS.ProductSubcategoryKey=PP.ProductSubcategoryKey
+LEFT JOIN [dbo].[DimProductCategory] AS PC
+ON PC.ProductCategoryKey=PS.ProductCategoryKey
+LEFT JOIN [dbo].[DimCustomer] AS CC
+ON CC.CustomerKey=FS.CustomerKey
+LEFT JOIN
+(SELECT
+[SalesOrderNumber],
+count([SalesOrderNumber]) AS Volumeoftransaction
+from [dbo].[FactInternetSales]
+group by [SalesOrderNumber]) AS C
+ON FS.SalesOrderNumber = C.[SalesOrderNumber]
+
